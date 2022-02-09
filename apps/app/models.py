@@ -99,3 +99,59 @@ class Student(models.Model):
         )
         verbose_name = 'Студент'
         verbose_name_plural = 'Студенты'
+
+class Professor(models.Model):
+    FULL_NAME_MAX_LENGTH = 20
+    TOPIC_MAX_LENGTH = 30
+
+    TOPIC_JAVA = 'java'
+    TOPIC_PYTHON = 'python'
+    TOPIC_TS = 'typescript'
+    TOPIC_JS = 'javascript'
+    TOPIC_RUBY = 'ruby'
+    TOPIC_GO = 'golang'
+    TOPIC_SQL = 'sql'
+    TOPIC_SWIFT = 'swift'
+    TOPIC_PHP = 'php'
+    TOPIC_DELTHI = 'delphi'
+    TOPIC_PERL = 'perl'
+
+    TOPIC_CHOICES = (
+        (TOPIC_JAVA, 'Java'),
+        (TOPIC_PYTHON, 'Python'),
+        (TOPIC_TS, 'Typescript'),
+        (TOPIC_JS, 'JavaScript'),
+        (TOPIC_RUBY, 'Ruby'),
+        (TOPIC_GO, 'Golang'),
+        (TOPIC_SQL, 'SQL'),
+        (TOPIC_SWIFT, 'Swift'),
+        (TOPIC_PHP, 'PHP'),
+        (TOPIC_DELTHI, 'Delphi'),
+        (TOPIC_PERL, 'Perl'),   
+    )
+
+    full_name = models.CharField(
+        verbose_name='Полное имя',
+        max_length=FULL_NAME_MAX_LENGTH
+    
+    )
+    topic = models.CharField(
+        verbose_name='Предмет',
+        choices=TOPIC_CHOICES,
+        default=TOPIC_JAVA,
+        max_length=TOPIC_MAX_LENGTH
+    )
+
+    students = models.ManyToManyField(
+        'Student'
+    )
+    class Meta:
+        verbose_name = 'Преподаватель'
+        verbose_name_plural = 'Преподаватели'
+        ordering = ('full_name',)
+
+    def save(self,args,**kwargs) -> None:
+        super().save(args,**kwargs)
+
+    def str(self) -> str:
+        return f'Teacher: {self.full_name}, teaches: {self.topic}'
