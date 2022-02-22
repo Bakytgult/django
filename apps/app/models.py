@@ -1,16 +1,28 @@
 from django.db import models
+from django.db.models import QuerySet
 
 from django.conf import settings 
 from django.contrib.auth.models import User
-import logging
+
 from django.core.exceptions import (
     ValidationError,
 )
 
-# class User(models.Model):
-#     pass
-class Account(models.Model):
+from abstracts.models import DateTimeCustom
 
+
+
+# class AccountQuerySet(QuerySet):
+
+#     def get_superusers(self) -> QuerySet:
+#         return self.filter(
+#             user__is_superuser=True
+#             )
+
+
+
+class Account(DateTimeCustom):
+    
     ACCOUNT_FULL_NAME_MAX_LENGTH = 20
 
     user = models.OneToOneField(
@@ -21,42 +33,62 @@ class Account(models.Model):
         max_length=ACCOUNT_FULL_NAME_MAX_LENGTH
     )
     description = models.TextField()
-
+    # objects = AccountQuerySet().as_manager()
+    
     def __str__(self) -> str:
         return f'Аккаунт:{self.user.id}/{self.full_name}'
 
     class Meta:
-
-        ordering = (
-            'full_name',
-        )
+        ordering = ('full_name',)
         verbose_name = 'Аккаунт'
         verbose_name_plural = 'Аккаунты'
 
 
-class Group(models.Model):
+# class GroupQuerySet(QuerySet):
+    
+#     HIGH_GPA_LEVEL = 4.0
+
+#     def get_students_with_high_gpa(self) -> QuerySet:
+#         return self.filter(
+#             )
+
+
+
+class Group(DateTimeCustom):
 
     CROUP_MAX_LENGTH = 10
 
     name = models.CharField(
+
         max_length=CROUP_MAX_LENGTH
     )
-
+    # objects = GroupQuerySet().as_manager()
+    
     def __str__(self) -> str:
         return f'Группа:{self.name}'
 
     class Meta:
 
-        ordering = (
-            'name',
-        )
+        ordering = ('name',)
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
 
 
-class Student(models.Model):
 
-    MAX_AGE = 27
+class StudentQuerySet(QuerySet):
+
+    ADULT_AGE = 18
+
+    def get_adult_students(self) -> QuerySet:
+        return self.filter(
+            age__gte=self.ADULT_AGE
+        )
+
+
+
+class Student(DateTimeCustom):
+
+    MAX_AGE = 24
 
     account = models.OneToOneField(
         Account,
@@ -72,86 +104,85 @@ class Student(models.Model):
     gpa = models.FloatField(
         'Средний балл'
     )
+    # objects = StudentQuerySet().as_manager()
 
     def __str__(self) -> str:
         return f'Студент {self.account.full_name} Группа:{self.group.name}'
 
-
-    def save(
-        self,
-        *args: tuple,
-        **kwargs: dict
-    ) -> None:
+    def save(self, *args: tuple, **kwargs: dict) -> None:
         if self.age > self.MAX_AGE:
-            #self.age = self.MAX_AGE
+            
             raise ValidationError(
-                f'Допустимый возраст:{self.MAX_AGE}'
-                )
-
+                f'Допустимый возраст: {self.MAX_AGE}'
+            )
         super().save(*args, **kwargs)
-    
 
+    def delete(self) -> None:
+        datetime_now: self.datetime = self.datetime.now()
+
+        self.datetime_deleted = datetime_now
+
+        self.save(
+            update_fields=['datetime_deleted']
+        ) 
 
     class Meta:
 
-        ordering = (
-            'account',
-        )
+        ordering = ('account',)
         verbose_name = 'Студент'
         verbose_name_plural = 'Студенты'
 
-class Professor(models.Model):
-    FULL_NAME_MAX_LENGTH = 20
+
+
+class Professor(DateTimeCustom):
+
+    FULL_NAME_MAX_LENGTH = 40
     TOPIC_MAX_LENGTH = 30
 
     TOPIC_JAVA = 'java'
     TOPIC_PYTHON = 'python'
-    TOPIC_TS = 'typescript'
-    TOPIC_JS = 'javascript'
-    TOPIC_RUBY = 'ruby'
-    TOPIC_GO = 'golang'
-    TOPIC_SQL = 'sql'
+    TOPIC_GOLANG = 'golang'
+    TOPIC_TYPESCRIPT = 'typescript'
     TOPIC_SWIFT = 'swift'
     TOPIC_PHP = 'php'
-    TOPIC_DELTHI = 'delphi'
-    TOPIC_PERL = 'perl'
+    TOPIC_SQL = 'sql'
+    TOPIC_RUBY = 'ruby'
 
     TOPIC_CHOICES = (
-        (TOPIC_JAVA, 'Java'),
-        (TOPIC_PYTHON, 'Python'),
-        (TOPIC_TS, 'Typescript'),
-        (TOPIC_JS, 'JavaScript'),
-        (TOPIC_RUBY, 'Ruby'),
-        (TOPIC_GO, 'Golang'),
-        (TOPIC_SQL, 'SQL'),
-        (TOPIC_SWIFT, 'Swift'),
-        (TOPIC_PHP, 'PHP'),
-        (TOPIC_DELTHI, 'Delphi'),
-        (TOPIC_PERL, 'Perl'),   
+        (TOPIC_JAVA,'Java'),
+        (TOPIC_PYTHON,'Python'),
+        (TOPIC_GOLANG,'Golang'),
+        (TOPIC_TYPESCRIPT,'Typescript'),
+        (TOPIC_SWIFT,'Swift'),
+        (TOPIC_PHP,'PHP'),
+        (TOPIC_SQL,'SQL'),
+        (TOPIC_RUBY,'Ruby'),
     )
 
     full_name = models.CharField(
-        verbose_name='Полное имя',
+        verbose_name='полное имя',
         max_length=FULL_NAME_MAX_LENGTH
-    
     )
+
     topic = models.CharField(
-        verbose_name='Предмет',
+        verbose_name='предмет',
         choices=TOPIC_CHOICES,
         default=TOPIC_JAVA,
         max_length=TOPIC_MAX_LENGTH
     )
-
     students = models.ManyToManyField(
         'Student'
     )
-    class Meta:
-        verbose_name = 'Преподаватель'
-        verbose_name_plural = 'Преподаватели'
-        ordering = ('full_name',)
-
-    def save(self,args,**kwargs) -> None:
-        super().save(args,**kwargs)
 
     def str(self) -> str:
-        return f'Teacher: {self.full_name}, teaches: {self.topic}'
+        return f'Преподователь: {self.full_name}, Квалификафии: {self.topic}'
+
+    def save(self, *args: tuple, **kwargs: dict) -> None:
+        super().save(*args,**kwargs)
+
+    class Meta:
+
+        ordering = ('full_name',)
+        verbose_name = 'Преподаватель'
+        verbose_name_plural = 'Преподаватели'
+        
