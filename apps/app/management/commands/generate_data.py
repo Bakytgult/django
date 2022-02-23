@@ -15,6 +15,7 @@ from app.models import (
     Student,
     Professor,
 )
+
 import names
 
 class Command(BaseCommand):

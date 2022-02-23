@@ -28,11 +28,12 @@ class AccountAdmin(admin.ModelAdmin):
 
 class GroupAdmin(admin.ModelAdmin):
 
-    readonly_fields = (
-        'datetime_created',
-        'datetime_update',
-        'datetime_deleted',
-    )
+    pass
+    # readonly_fields = (
+    #     'datetime_created',
+    #     'datetime_update',
+    #     'datetime_deleted',
+    # )
 
     # def get_readonly_fields(
     #     self, 
