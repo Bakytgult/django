@@ -1,0 +1,11 @@
+.gitignore
+*.pyc
+*.pyo
+.idea
+__pycache__
+logs
+media
+static
+celerybeat.pid
+celerybeat-schedule
+db.sqlite3
