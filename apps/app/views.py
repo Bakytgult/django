@@ -13,7 +13,7 @@ from app.models import (
 
 
 def index(request: WSGIRequest) -> HttpResponse:
-    student: Student = Student.objects.first()
+    student: Student = Student.objects.all()
     account: Account = student.account
     user: User = account.user
     name: str = user.first_name
@@ -47,6 +47,6 @@ def show(request: WSGIRequest) -> HttpResponse:
     return render(
         request,
         'show.html',
-        context 
+         
     )
 
