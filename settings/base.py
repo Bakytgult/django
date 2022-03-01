@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import sys
 
+from . import get_env_variable
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
@@ -22,8 +24,8 @@ sys.path.append(os.path.join(BASE_DIR,'apps'))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'cfkpknpwlzo8+9imu*6!g!+92vqaio0&c-cy+xgm3!wk_$o^)+'
-
+# SECRET_KEY = 'cfkpknpwlzo8+9imu*6!g!+92vqaio0&c-cy+xgm3!wk_$o^)+'
+SECRET_KEY = get_env_variable('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -118,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 # ADMIN_SITE_URL = '9E934nfh/'
-ADMIN_SITE_URL = 'admin'
+#ADMIN_SITE_URL = 'admin'
 LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'Asia/Almaty'
